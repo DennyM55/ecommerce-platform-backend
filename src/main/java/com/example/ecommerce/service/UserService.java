@@ -17,6 +17,9 @@ public class UserService {
     }
 
     public User registerUser(String email, String rawPassword) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email already registered");
+        }
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
