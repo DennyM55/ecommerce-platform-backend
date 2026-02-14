@@ -1,6 +1,8 @@
 package com.example.ecommerce.controller;
 
+import com.example.ecommerce.security.JwtUtil;
 import com.example.ecommerce.service.UserService;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signup")
@@ -23,9 +27,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         userService.authenticate(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok("Login successful");
+        String token = jwtUtil.generateToken(request.getEmail());
+        return ResponseEntity.ok(Map.of("token", token));
     }
 
     public static class SignupRequest {
